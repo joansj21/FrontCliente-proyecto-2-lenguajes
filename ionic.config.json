@@ -1,0 +1,7 @@
+{
+  "name": "FrontCliente",
+  "integrations": {
+    "capacitor": {}
+  },
+  "type": "angular"
+}
