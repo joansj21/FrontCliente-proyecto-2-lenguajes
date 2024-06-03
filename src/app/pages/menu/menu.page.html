@@ -1,0 +1,67 @@
+<ion-header [translucent]="true">
+  <ion-toolbar color="primary">
+    <ion-title>
+      <div *ngIf="nameUser">
+        <p>Bienvenido, {{ nameUser }}!</p>
+      </div>
+    </ion-title>
+    <ion-buttons slot="end">
+      <ion-button *ngIf="!hasUser()" routerLink="/login">Login</ion-button>
+      <ion-button *ngIf="!hasUser()" routerLink="/register">Register</ion-button>
+      <ion-button *ngIf="hasUser()" routerLink="/cart">Carrito</ion-button>
+      <ion-button *ngIf="hasUser()" (click)="logout()">Salir</ion-button>
+    </ion-buttons>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content [fullscreen]="true">
+  <ion-grid>
+    <!-- Iterar sobre cada cupón en la página actual -->
+    <ion-row>
+      <ng-container *ngFor="let cupon of getCuponesForCurrentPage()">
+        <!-- Crear una columna para cada cupón -->
+        <ion-col size="12" size-sm="6" size-md="4" size-lg="3" size-xl="3">
+          <ion-card>
+            <img [src]="getCuponImage(cupon)" alt="{{ cupon.nombre }}" class="cupon-image">
+            <ion-card-header>
+              {{ cupon.nombre }}
+            </ion-card-header>
+            <ion-card-content>
+              <p>{{ cupon.descripcion }}</p>
+              <p>Fecha de inicio: {{ cupon.fecha_inicio | date:'yyyy-MM-dd' }}</p>
+              <p>Fecha de expiración: {{ cupon.fecha_expira | date:'yyyy-MM-dd' }}</p>
+              <p>Ubicación: {{ cupon.ubicacion }}</p>
+              <p>Categoría: {{ cupon.categoria }}</p>
+              <p>Precio: {{ cupon.precio }}</p>
+              <!-- Mostrar promociones asociadas -->
+              <div *ngIf="cupon.promociones && cupon.promociones.length > 0">
+                <h4>Promociones:</h4>
+                <ul>
+                  <li *ngFor="let promo of cupon.promociones">
+                    {{ promo.descripcion }} -- Finaliza {{ promo.fecha_expira | date:'yyyy-MM-dd' }}
+                  </li>
+                </ul>
+              </div>
+              <!-- Input para ingresar la cantidad -->
+              <ion-item>
+                <ion-label position="floating">Cantidad</ion-label>
+                <ion-input type="number" min="1" [(ngModel)]="cupon.quantity" value="1"></ion-input>
+              </ion-item>
+              <ion-button *ngIf="hasUser()" (click)="addToCart(cupon)">Agregar</ion-button>
+            </ion-card-content>
+          </ion-card>
+        </ion-col>
+      </ng-container>
+    </ion-row>
+  </ion-grid>
+
+  <!-- Botones para navegar entre las páginas -->
+  <ion-row>
+    <ion-col size="6">
+      <ion-button (click)="previousPage()" [disabled]="currentPageIndex === 0">Anterior</ion-button>
+    </ion-col>
+    <ion-col size="6">
+      <ion-button (click)="nextPage()" [disabled]="isLastPage()">Siguiente</ion-button>
+    </ion-col>
+  </ion-row>
+</ion-content>

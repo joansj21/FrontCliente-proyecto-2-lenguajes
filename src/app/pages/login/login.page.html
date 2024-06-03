@@ -1,0 +1,21 @@
+<ion-content>
+  <div class="login-page">
+
+    <div class="image-container">
+      <h1>Login</h1>
+    </div>
+
+    <ion-item class="item">
+     <ion-input label="Mail" type="email" label-placement="floating"  [(ngModel)]="email" placeholder="Enter text"></ion-input>
+    </ion-item>
+
+    <ion-item class="item">
+      <ion-input label="Contraseña" label-placement="floating"  type="password" [(ngModel)]="password" placeholder="Enter text"></ion-input>
+     </ion-item>
+
+
+
+    <ion-button expand="block" (click)="login()">Login</ion-button>
+    <ion-button expand="block" fill="outline" [routerLink]="['/register']">Registrar</ion-button>
+  </div>
+</ion-content>

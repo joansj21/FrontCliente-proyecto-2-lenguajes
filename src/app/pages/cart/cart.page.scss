@@ -1,0 +1,53 @@
+/* Estilos para la tabla */
+table {
+  width: 100%;
+  border-collapse: collapse;
+  margin: auto; /* Centrar la tabla */
+}
+
+th, td {
+  border: 1px solid #ddd;
+  padding: 8px;
+  text-align: left;
+}
+
+th {
+  background-color: #f2f2f2;
+}
+
+/* Estilos para el pie de tabla */
+tfoot td {
+  font-weight: bold;
+}
+
+/* Estilos para las filas impares */
+tbody tr:nth-child(odd) {
+  background-color: #f9f9f9;
+}
+
+/* Estilos para el total */
+tfoot tr:last-child {
+  background-color: #ddd;
+}
+
+
+ion-item ion-label{
+  color: black;
+}
+
+ion-item ion-input{
+  color: black;
+}
+
+
+ion-card-header,ion-card-content,ion-card-title{
+  background-color: #ffffff;
+  color: black;
+
+}
+
+ion-content {
+  --ion-background-color: #ffffff;
+
+
+}

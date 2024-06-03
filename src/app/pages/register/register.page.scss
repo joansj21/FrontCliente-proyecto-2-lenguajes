@@ -1,0 +1,48 @@
+ion-content {
+  --ion-background-color: #ffffff;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+ion-card {
+  background-color: #ffffff;
+  width: 100%;
+  max-width: 500px; /* Optional: Limit the width for better appearance */
+  margin: auto;
+  margin-top: 5%;
+}
+
+ion-card-header {
+  text-align: center;
+}
+
+ion-card-title {
+  color: black;
+}
+
+.form-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+ion-item {
+  margin-bottom: 1.5rem; /* Espacio entre los elementos del formulario */
+  border-radius: 20px;
+  background-color: rgb(181, 178, 178); /* Color de fondo gris */
+  width: 80%;
+}
+
+ion-item ion-label {
+  color: black; /* Establece el color del texto en negro */
+}
+
+ion-input {
+  color: black; /* Establece el color del texto en negro */
+}
+
+ion-button {
+  margin-top: 1.5rem; /* Espacio entre los elementos del formulario y los botones */
+  width: 60%;
+}

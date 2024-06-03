@@ -1,0 +1,85 @@
+<ion-header [translucent]="true">
+  <ion-toolbar color="primary">
+    <ion-title>
+      <div *ngIf="nameUser">
+        <p>Bienvenido, {{ nameUser }}!</p>
+      </div>
+    </ion-title>
+    <ion-buttons slot="end">
+
+      <ion-button  routerLink="/menu">Atras</ion-button>
+
+    </ion-buttons>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content [fullscreen]="true">
+  <table>
+    <thead>
+      <tr>
+        <th>Código del cupón</th>
+        <th>Nombre</th>
+        <th>Precio</th>
+        <th>Cantidad</th>
+      </tr>
+    </thead>
+    <tbody>
+      <ng-container *ngFor="let cuponArray of cupones">
+        <ng-container *ngFor="let cupon of cuponArray">
+          <tr>
+            <td>{{ cuponArray.id}}</td>
+            <td>{{ cupon.nombre }}</td>
+            <td>{{ cupon.precio }}</td>
+            <td>{{ cuponArray.quantity}}</td>
+          </tr>
+        </ng-container>
+
+      </ng-container>
+    </tbody>
+    <tfoot>
+      <tr>
+        <td colspan="2">Total sin impuesto:</td>
+        <td>{{ calcularTotalSinImpuesto() }}</td>
+        <td></td>
+      </tr>
+      <tr>
+        <td colspan="2">Total con impuesto (13%):</td>
+        <td>{{ calcularTotalConImpuesto() }}</td>
+        <td></td>
+      </tr>
+    </tfoot>
+  </table>
+
+  <br>
+
+  <ion-card>
+
+    <ion-card-header>
+      <ion-card-title>Detalles de Pago</ion-card-title>
+    </ion-card-header>
+    <ion-card-content>
+      <ion-item>
+        <ion-label position="floating">Nombre en la Tarjeta</ion-label>
+        <ion-input [(ngModel)]="cardName" type="text"></ion-input>
+      </ion-item>
+      <ion-item>
+        <ion-label position="floating">Número de Tarjeta</ion-label>
+        <ion-input [(ngModel)]="cardNumber" type="text"></ion-input>
+      </ion-item>
+      <ion-item>
+        <ion-label position="floating">Fecha de Expiración</ion-label>
+        <br>
+        <ion-input [(ngModel)]="expiryDate" type="text" placeholder="MM/YY"></ion-input>
+      </ion-item>
+      <ion-item>
+        <ion-label position="floating">CVV</ion-label>
+        <ion-input [(ngModel)]="cvv" type="text"></ion-input>
+      </ion-item>
+    </ion-card-content>
+
+  <ion-button expand="full" (click)="proceedToPayment()">Proceder al Pago</ion-button>
+</ion-card>
+
+
+
+</ion-content>

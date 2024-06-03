@@ -1,0 +1,53 @@
+.login-page {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+
+
+}
+ion-content {
+  --ion-background-color: #ffffff;
+
+
+}
+ion-item ion-label {
+  color: black; /* Establece el color del texto en negro */
+}
+
+ion-item ion-input {
+  color: black; /* Establece el color del texto en negro */
+
+}
+.image-container {
+  width: 50%; /* Ancho del contenedor de imágenes */
+  height: 50%;
+  display: flex;
+  justify-content: center; /* Centrar horizontalmente */
+  align-items: center; /* Centrar verticalmente */
+  margin-bottom: 2rem; /* Espacio debajo del contenedor de imágenes */
+}
+
+.imgTicket {
+
+  border-radius: 50%; /* Hacer la imagen redonda */
+}
+
+
+
+
+ion-item {
+  margin-bottom: 2rem; /* Espacio entre los elementos del formulario */
+  border-radius: 20px;
+  background-color: rgb(181, 178, 178); /* Color de fondo gris */
+  width: 70%;
+}
+
+ion-button {
+  margin-top: 10%; /* Espacio entre los elementos del formulario y los botones */
+  width: 30%;
+}
+
+ion-content.ion-palette-dark {
+  --ion-background-color: #ffffff !important; /* Tema claro */
+}
+
