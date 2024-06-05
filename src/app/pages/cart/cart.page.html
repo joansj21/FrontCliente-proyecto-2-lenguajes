@@ -49,12 +49,13 @@
       </tr>
     </tfoot>
   </table>
-
+  <br>
+  <ion-button *ngIf="!ModalPagar && cupones[0]" (click)="onModalPago()">Pagar</ion-button>
   <br>
 
-  <ion-card>
+  <ion-card *ngIf="ModalPagar  ">
 
-    <ion-card-header>
+    <ion-card-header >
       <ion-card-title>Detalles de Pago</ion-card-title>
     </ion-card-header>
     <ion-card-content>

@@ -16,6 +16,23 @@
 
 <ion-content [fullscreen]="true">
   <ion-grid>
+    <!-- Buscador y Filtro de Categorías -->
+    <ion-row>
+      <ion-col size="12" size-md="6">
+        <ion-item>
+          <ion-label>Categoría</ion-label>
+          <ion-select [(ngModel)]="selectedCategory" (ionChange)="filterCupones()">
+            <ion-select-option *ngFor="let categoria of categorias" [value]="categoria.categoria">
+              {{ categoria.categoria }}
+            </ion-select-option>
+          </ion-select>
+        </ion-item>
+      </ion-col>
+      <ion-col size="12" size-md="6">
+        <ion-searchbar [(ngModel)]="searchTerm" (ionInput)="filterCupones()" placeholder="Buscar cupones... nombre, ubicacion, empresa "></ion-searchbar>
+      </ion-col>
+    </ion-row>
+
     <!-- Iterar sobre cada cupón en la página actual -->
     <ion-row>
       <ng-container *ngFor="let cupon of getCuponesForCurrentPage()">
@@ -32,6 +49,7 @@
               <p>Fecha de expiración: {{ cupon.fecha_expira | date:'yyyy-MM-dd' }}</p>
               <p>Ubicación: {{ cupon.ubicacion }}</p>
               <p>Categoría: {{ cupon.categoria }}</p>
+              <p>Empresa: {{ cupon.nombre_empresa }}</p>
               <p>Precio: {{ cupon.precio }}</p>
               <!-- Mostrar promociones asociadas -->
               <div *ngIf="cupon.promociones && cupon.promociones.length > 0">
@@ -44,8 +62,8 @@
               </div>
               <!-- Input para ingresar la cantidad -->
               <ion-item>
-                <ion-label position="floating">Cantidad</ion-label>
-                <ion-input type="number" min="1" [(ngModel)]="cupon.quantity" value="1"></ion-input>
+                <ion-label *ngIf="hasUser()" position="floating">Cantidad</ion-label>
+                <ion-input *ngIf="hasUser()" type="number" min="1" [(ngModel)]="cupon.quantity" value="1"></ion-input>
               </ion-item>
               <ion-button *ngIf="hasUser()" (click)="addToCart(cupon)">Agregar</ion-button>
             </ion-card-content>

@@ -1,6 +1,9 @@
 import { Component, OnInit } from '@angular/core';
 import { NavigationEnd, Router } from '@angular/router';
+import { Pago } from 'src/app/interfaces/pago';
 import { CuponService } from 'src/app/services/cupon/cupon.service';
+import { PagoService } from 'src/app/services/pago/pago.service';
+import * as forge from 'node-forge'; // Importa el paquete 'node-forge' para utilizar RSA
 
 @Component({
   selector: 'app-cart',
@@ -15,6 +18,8 @@ export class CartPage implements OnInit {
   userID: string='';
   totalPagar:number=0;
 
+  ModalPagar:boolean=false;
+
 
   cardName: string = '';
   cardNumber: string = '';
@@ -28,7 +33,15 @@ export class CartPage implements OnInit {
     cvv: ''
   };
 
-  constructor(private router: Router, private service: CuponService) {
+  rsaKeyPair: forge.pki.rsa.KeyPair;
+  publicKey: string;
+  privateKey: string;
+
+  constructor(private router: Router, private service: CuponService,private servicePago:PagoService) {
+    this.rsaKeyPair = forge.pki.rsa.generateKeyPair({ bits: 2048 });
+    this.publicKey = forge.pki.publicKeyToPem(this.rsaKeyPair.publicKey);
+    this.privateKey = forge.pki.privateKeyToPem(this.rsaKeyPair.privateKey);
+
     this.router.events.subscribe((event) => {
       if (event instanceof NavigationEnd) {
         this.cupones=[];
@@ -46,6 +59,11 @@ export class CartPage implements OnInit {
 
      //localStorage.removeItem("cartItems" + this.userID);
   }
+
+  onModalPago(){
+    this.ModalPagar=true;
+  }
+
 
   loadUserData() {
     const storedFirstName = localStorage.getItem('firstName');
@@ -147,7 +165,14 @@ proceedToPayment() {
     });
 
     // Mostrar un mensaje de éxito
-    alert('Pago realizado con éxito.');
+
+
+    const pago: Pago = this.createPaymentObject();
+
+    pago.Tarjeta = this.encryptData(this.cardNumber);
+    pago.ccv = this.encryptData(this.cvv);
+
+    this.submitPayment(pago);
     //console.log("  pago cartItems" + this.userID)
     localStorage.removeItem("cartItems" + this.userID);
 
@@ -155,7 +180,7 @@ proceedToPayment() {
 
 
   } else {
-    alert('Por favor, complete todos los campos de pago correctamente.');
+    alert('Por favor, complete todos los campos de pago correctamente.'+this.errors);
   }
 }
 
@@ -236,6 +261,160 @@ validateCVV() {
   }
 }
 
+
+/*realizar pago api -------------------------------------------------*/
+
+createPaymentObject(): Pago {
+  return {
+    id:0,
+    userId: parseInt(this.userID), // Asegúrate de convertir userID a un número si es de tipo string
+    nameTarjeta: this.cardName,
+    Tarjeta: this.cardNumber,
+    ccv: this.cvv,
+    price: this.calcularTotalConImpuesto(), // Usar el precio total con impuesto
+    FechaVencimiento: this.expiryDate,
+    PurchaseDate:new Date()
+
+  };
+}
+
+// Método para enviar el pago al servicio
+/*
+submitPayment(pago: Pago) {
+  this.servicePago.pagoRegister(pago).subscribe(
+    (response) => {
+      // Manejar la respuesta del servicio
+      console.log('Pago realizado con éxito:', response);
+      // Limpiar el carrito después de un pago exitoso
+      localStorage.removeItem("cartItems" + this.userID);
+    },
+    (error) => {
+      // Manejar errores
+      console.error('Error al procesar el pago:', error);
+    }
+  );
+}*/
+submitPayment(pago: Pago) {
+  this.servicePago.pagoRegister(pago).subscribe(
+    (response: any) => {
+      // Manejar la respuesta del servicio de pago
+      console.log('Pago realizado con éxito:', response);
+
+      // Registrar los cupones comprados con sus promociones
+      this.registerCupons(response.id, response.userId);
+
+      // Limpiar el carrito después de un pago exitoso
+      localStorage.removeItem("cartItems" + this.userID);
+    },
+    (error) => {
+      // Manejar errores
+      console.error('Error al procesar el pago:', error);
+    }
+  );
+}
+
+registerCupons(pagoID: number, userID: number) {
+  const cuponesComprados = this.obtenerCuponesComprados(pagoID,userID);
+
+  cuponesComprados.forEach(cuponClient => {
+    //cuponClient.cupon.pagoID = pagoID;
+    //cuponClient.cupon.idUser = userID;
+
+    // Verifica que todos los campos requeridos están presentes y no vacíos
+   /* if (!cuponClient.cupon.nombre || !cuponClient.cupon.img) {
+      console.error('Campos requeridos faltantes:', cuponClient.cupon);
+      return;
+    }*/
+
+    // Log para debug
+    console.log('Registrando cupón:', cuponClient);
+
+    this.servicePago.cuponRegister(cuponClient).subscribe(
+      (cuponResponse) => {
+        console.log('Cupón registrado con éxito:', cuponResponse);
+      },
+      (cuponError) => {
+        console.error('Error al registrar el cupón:', cuponError);
+      }
+    );
+  });
+}
+obtenerCuponesComprados(pagoID: number, userID: number) {
+  console.log("Lista de cupones", this.cupones);
+  return this.cupones.flatMap(cuponArray =>
+    cuponArray.map((cupon: { id: any; nombre_empresa: any; nombre: any; ubicacion: any; categoria: any; precio: any; fecha_expira: any; urlImg: any; }) => ({
+      cupon: {
+        id: cupon.id,
+        empresa: cupon.nombre_empresa,
+        nombre: cupon.nombre,
+        ubicacion: cupon.ubicacion,
+        categoria: cupon.categoria,
+        precio: cupon.precio.toString(),
+        fechaExpira: new Date(cupon.fecha_expira).toISOString(),
+        pagoID: pagoID, // Se asignará en registerCupons
+        img: cupon.urlImg?cupon.urlImg:"",
+        idUser: userID // Se asignará en registerCupons
+      },
+      promociones: this.promociones.filter(promocion => promocion.id_cupon === cupon.id)
+
+      .map((promocion: any) => ({
+        id: 0,
+        nombre: promocion.descripcion+" Finaliza:"+promocion.fecha_expira,
+        cuponID: promocion.id_cupon
+      }))
+
+    }))
+  );
+}
+
+/*obtenerCuponesComprados() {
+
+    console.log("lista cupones"+this.cupones)
+  return this.cupones.forEach(cuponArray=> {
+
+        this.cuponArray.map(cupon =>{
+
+          return {
+            cupon: {
+              id: cupon.id,
+              empresa: cupon.nombre_empresa,
+              nombre: cupon.nombre,
+              ubicacion: cupon.ubicacion,
+              categoria: cupon.categoria,
+              precio: cupon.precio,
+              fechaExpira: cupon.fecha_expira,
+              pagoID: 0, // Se asignará en registerCupons
+              img: cupon.urlImg,
+              idUser: 0 // Se asignará en registerCupons
+            },
+            promociones: this.promociones.filter(promocion => promocion.cupon_id === cuponArray.id)
+          };
+        });
+  });
+}
+*/
+
+
+//-----------------------------encripta
+// Genera un par de claves RSA (pública y privada)
+
+encryptData(data: string): string {
+  const publicKeyObj = forge.pki.publicKeyFromPem(this.publicKey);
+
+  // Convierte la cadena de datos a bytes
+  const dataBytes = forge.util.encodeUtf8(data);
+
+  // Cifra los datos utilizando la clave pública RSA
+  const encrypted = publicKeyObj.encrypt(dataBytes);
+
+  // Devuelve los datos cifrados en formato Base64
+  return forge.util.encode64(encrypted);
+}
+
+
+
+
+/**-------------------------- */
 
 
 

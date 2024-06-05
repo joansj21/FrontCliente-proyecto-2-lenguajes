@@ -24,5 +24,4 @@ export class UserService {
     const url = `${this.apiUrl}/User`;
     return this.http.post<User>(url, user);
   }
-
 }

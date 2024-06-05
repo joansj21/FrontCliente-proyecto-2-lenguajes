@@ -1,0 +1,67 @@
+<ion-header [translucent]="true">
+  <ion-toolbar color="primary">
+    <ion-title>
+      <div *ngIf="nameUser">
+        <p>Bienvenido, {{ nameUser }}!</p>
+      </div>
+    </ion-title>
+    <ion-buttons slot="end">
+      <ion-button *ngIf="!hasUser()" routerLink="/login">Login</ion-button>
+      <ion-button *ngIf="!hasUser()" routerLink="/register">Register</ion-button>
+      <ion-button *ngIf="hasUser()" routerLink="/cart">Carrito</ion-button>
+      <ion-button *ngIf="hasUser()" (click)="logout()">Salir</ion-button>
+    </ion-buttons>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content>
+  <!-- Cupones -->
+  <ion-row wrap>
+    <ion-col  size="12" size-sm="6" size-md="4" size-lg="3" size-xl="3" *ngFor="let cupon of cupones">
+      <ng-container *ngIf="!hasExpired(cupon.fechaExpira)">
+        <ion-card>
+          <!-- Imagen del cupón -->
+          <img [src]="getCuponImage(cupon)" alt="Imagen del cupón" class="cupon-image">
+          <ion-card-header>
+            <ion-card-title>{{ cupon.nombre }}</ion-card-title>
+            <ion-card-subtitle>{{ cupon.empresa }}</ion-card-subtitle>
+          </ion-card-header>
+          <ion-card-content>
+            <p>Categoría: {{ cupon.categoria }}</p>
+            <p>Ubicación: {{ cupon.ubicacion }}</p>
+            <p>Precio: {{ cupon.precio }}</p>
+
+            <!-- Promociones -->
+            <ng-container *ngIf="cupon.promociones && cupon.promociones.length > 0">
+              <p>Promociones:</p>
+              <ul>
+                <li *ngFor="let promocion of cupon.promociones">{{ promocion.nombre }}</li>
+              </ul>
+            </ng-container>
+          </ion-card-content>
+        </ion-card>
+      </ng-container>
+    </ion-col>
+  </ion-row>
+
+  <!-- Cupones que ya han pasado la fecha de expiración -->
+  <ion-row wrap>
+    <ion-col size="12" size-md="10" size-lg="8" size-xl="6" *ngFor="let cupon of cupones">
+      <ng-container *ngIf="hasExpired(cupon.fechaExpira)">
+        <ion-card>
+          <!-- Imagen del cupón -->
+          <img [src]="cupon.img" alt="Imagen del cupón">
+          <ion-card-header>
+            <ion-card-title>{{ cupon.nombre }}</ion-card-title>
+            <ion-card-subtitle>{{ cupon.empresa }}</ion-card-subtitle>
+          </ion-card-header>
+          <ion-card-content>
+            <p>Categoría: {{ cupon.categoria }}</p>
+            <p>Ubicación: {{ cupon.ubicacion }}</p>
+            <p>Precio: {{ cupon.precio }}</p>
+          </ion-card-content>
+        </ion-card>
+      </ng-container>
+    </ion-col>
+  </ion-row>
+</ion-content>
